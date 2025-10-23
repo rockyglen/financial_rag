@@ -1,0 +1,24 @@
+# --- Core LangChain and Abstractions ---
+langchain>=1.0.0
+langchain-core
+langchain-community
+langchain-text-splitters
+
+# --- LLM and Embeddings (Cloud/OpenAI) ---
+openai
+langchain-openai
+
+# --- Vector Database ---
+chromadb
+
+# --- Document Parsing and Handling ---
+unstructured[all-docs] 
+unstructured-client 
+
+# --- API Service and Deployment ---
+fastapi
+pydantic
+uvicorn
+
+# --- Advanced RAG: Reranker Model Dependency ---
+sentence-transformers
