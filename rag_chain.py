@@ -3,11 +3,8 @@
 from langchain_core.runnables import RunnablePassthrough, RunnableLambda
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from retriever_setup import (
-    retriever,
-    llm,
-)  # Import the functional retriever and the LLM
-from typing import List  # Needed for lambda function types
+from retriever_setup import retriever, llm
+from typing import List
 
 # --- 1. Define the System Prompt ---
 SYSTEM_PROMPT = """
@@ -31,18 +28,14 @@ def format_docs(docs: List) -> str:
 
 
 # --- 3. Assemble the RAG Chain using LCEL ---
-# The chain is designed to keep the raw documents for debugging/citation.
 rag_chain = (
-    # CORRECT LCEL: Start with RunnablePassthrough.assign to create the input dictionary
     RunnablePassthrough.assign(
-        # Store the raw documents using the retriever function
         context=RunnableLambda(retriever),
         question=RunnablePassthrough(),
-    ).assign(
-        # Run the RAG process to get the final answer
+    )
+    .assign(
         answer=(
             {
-                # Format docs for the prompt (using the stored raw context)
                 "context": lambda x: format_docs(x["context"]),
                 "question": lambda x: x["question"],
             }
@@ -50,12 +43,11 @@ rag_chain = (
             | llm
             | StrOutputParser()
         ),
-        # Extract the source filenames for the API response (debugging/citation)
+        # Extract the source filenames for citation/debugging
         source_documents=lambda x: [
             doc.metadata.get("source", "Unknown") for doc in x["context"]
         ],
     )
-    # Final output selects only the keys needed for the API response
     .pick(["answer", "source_documents"])
 )
 

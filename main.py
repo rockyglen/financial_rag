@@ -4,26 +4,35 @@ from fastapi import FastAPI
 from pydantic import BaseModel
 from rag_chain import rag_chain
 from typing import List
+from fastapi.middleware.cors import CORSMiddleware
+import os
 
 
-# --- 1. Pydantic Schemas (Input/Output Validation) ---
+# --- 1. Pydantic Schemas ---
 class QueryRequest(BaseModel):
-    """Defines the expected input structure for the API."""
-
     question: str
 
 
 class QueryResponse(BaseModel):
-    """Defines the output structure from the API."""
-
     answer: str
-    source_documents: List[str]  # Now includes sources for debugging/citation
+    source_documents: List[str]
 
 
 # --- 2. FastAPI Setup ---
 app = FastAPI(
     title="Financial RAG Assistant Microservice",
-    description="A production-ready RAG system using local LLMs on M4.",
+    description="A production-ready RAG system deployed on AWS EC2.",
+)
+
+# Enable CORS for the Streamlit frontend
+# IMPORTANT: When deploying Streamlit, change "http://localhost:8501"
+# to your Streamlit Cloud URL (e.g., https://your-app.streamlit.app)
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:8501", "*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -35,19 +44,13 @@ async def predict_answer(request: QueryRequest):
     """
     print(f"\n[API Request] Received question: {request.question}")
     try:
-        # Invoke the RAG chain, which returns the structured dictionary
         result = rag_chain.invoke({"question": request.question})
 
         return result
 
     except Exception as e:
         print(f"[API Error] An error occurred: {e}")
-        # Return a professional error message and empty source list
         return QueryResponse(
             answer="An internal server error occurred while processing the request. Please check the server logs.",
             source_documents=[],
         )
-
-
-# --- EXECUTION ---
-# To run the app: uvicorn main:app --reload
