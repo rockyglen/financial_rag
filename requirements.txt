@@ -1,8 +1,8 @@
 # --- Core LangChain and Abstractions ---
-langchain>=1.0.0
+# Install the core components first!
 langchain-core
 langchain-community
-langchain-text-splitters
+langchain>=1.0.0  # Put base langchain last
 
 # --- LLM and Embeddings (Cloud/OpenAI Connector) ---
 openai
