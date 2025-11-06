@@ -18,12 +18,10 @@ from langchain_core.output_parsers import (
 from typing import List  # Standard library for type hinting.
 
 # Retrieval Imports (Advanced Components)
-from langchain.retrievers import ContextualCompressionRetriever
+from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
 
-# FIX 2: The Reranker is exposed under its specific path in the base package.
-from langchain.retrievers.document_compressors import (
-    CrossEncoderReranker,
-)  # The reranking model component.
+# FIX 2: Import the compressor from its corresponding deep path
+from langchain.retrievers.document_compressors import CrossEncoderReranker
 from langchain_community.embeddings import (
     HuggingFaceBgeEmbeddings,
 )  # Imports a model often used for the reranker.
