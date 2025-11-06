@@ -4,7 +4,7 @@ langchain-core
 langchain-community
 langchain-text-splitters
 
-# --- LLM and Embeddings (Cloud/OpenAI) ---
+# --- LLM and Embeddings (Cloud/OpenAI Connector) ---
 openai
 langchain-openai
 
@@ -15,3 +15,14 @@ chromadb
 unstructured[all-docs] 
 unstructured-client 
 
+# --- API Service and Deployment ---
+fastapi
+pydantic
+uvicorn
+
+# --- Advanced RAG: Reranker Model Dependency ---
+sentence-transformers
+
+# --- Frontend (Used to run chatbot_app.py locally) ---
+streamlit
+requests
