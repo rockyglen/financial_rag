@@ -15,8 +15,3 @@ chromadb
 unstructured[all-docs] 
 unstructured-client 
 
-# --- Advanced RAG: Reranker Model Dependency ---
-sentence-transformers
-# --- Frontend (Used to run chatbot_app.py) ---
-streamlit
-requests
