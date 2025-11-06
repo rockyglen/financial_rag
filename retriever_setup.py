@@ -18,10 +18,10 @@ from langchain_core.output_parsers import (
 from typing import List  # Standard library for type hinting.
 
 # Retrieval Imports (Advanced Components)
-from langchain.retrievers import (
+from langchain_community.retrievers import (
     ContextualCompressionRetriever,
 )  # The main wrapper for compression/reranking.
-from langchain.retrievers.document_compressors import (
+from langchain_community.document_compressors import (
     CrossEncoderReranker,
 )  # The reranking model component.
 from langchain_community.embeddings import (
