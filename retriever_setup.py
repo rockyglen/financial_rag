@@ -18,13 +18,13 @@ from langchain_core.output_parsers import (
 from typing import List  # Standard library for type hinting.
 
 # Retrieval Imports (Advanced Components)
-from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
+# from langchain.retrievers.contextual_compression import ContextualCompressionRetriever
 
-# FIX 2: Import the compressor from its corresponding deep path
-from langchain.retrievers.document_compressors import CrossEncoderReranker
-from langchain_community.embeddings import (
-    HuggingFaceBgeEmbeddings,
-)  # Imports a model often used for the reranker.
+# # FIX 2: Import the compressor from its corresponding deep path
+# from langchain.retrievers.document_compressors import CrossEncoderReranker
+# from langchain_community.embeddings import (
+#     HuggingFaceBgeEmbeddings,
+# )  # Imports a model often used for the reranker.
 
 # --- CONFIGURATION ---
 CHROMA_PATH = "./chroma_db_live"  # Path to load the pre-built vector store.
@@ -68,31 +68,36 @@ query_chain = (
 
 
 def multi_query_retriever_func(x: dict):
-    # This function is the entire Multi-Query and Reranking logic pipeline.
-    question = x["question"]  # Extracts the user's question from the input dictionary.
+    # This is the stable logic from previous steps
+    question = x["question"]
+    print(f"   [Retrieval] Optimizing query: {question}")
 
-    # ... (Code for generating alternative queries and performing initial high-recall search) ...
+    # a. Generate alternative queries (Logic remains the same)
+    try:
+        generated_queries_pydantic = query_chain.invoke({"question": question})
+        all_queries = [question] + generated_queries_pydantic.queries
+    except Exception as e:
+        print(
+            f"   [WARNING] Query generation failed ({e}). Falling back to single query: {e}"
+        )
+        all_queries = [question]
 
-    # --- RERANKING STAGE ---
+    # b. Perform parallel search and collect unique documents
+    unique_docs = {}
+    # Use a high k=7 since we removed the reranker, maximizing recall.
+    base_retriever = vectorstore.as_retriever(search_kwargs={"k": 7})
 
-    # 1. Initialize the compressor (Reranker model)
-    compressor = CrossEncoderReranker(
-        model="BAAI/bge-reranker-base",  # Specifies the external reranker model.
-        top_n=3,  # Filters to pass only the 3 best chunks to the final LLM.
-    )
+    for query in all_queries:
+        query_string = str(query)
+        docs = base_retriever.invoke(query_string)
+        for doc in docs:
+            if doc.page_content not in unique_docs:
+                unique_docs[doc.page_content] = doc
 
-    # 2. Create the Compression Pipeline
-    compression_retriever = ContextualCompressionRetriever(
-        base_compressor=compressor,
-        base_retriever=vectorstore.as_retriever(
-            search_kwargs={"k": 15}
-        ),  # Initial high recall search (k=15).
-    )
+    final_docs = list(unique_docs.values())
 
-    # 3. Use the Reranker to get the final, best context.
-    final_docs = compression_retriever.invoke(question)
-
-    return final_docs
+    print(f"   [Retrieval] Final Context Size: {len(final_docs)} chunks.")
+    return final_docs  # Return the documents found by the Multi-Query
 
 
 # Export the retriever function to be used by rag_chain.py
