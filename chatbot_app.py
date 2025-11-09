@@ -8,7 +8,7 @@ from typing import List
 # --- CONFIGURATION ---
 # !!! REPLACE THIS with your EC2's public IP address or domain !!!
 # Note: You will manually update this file with the EC2's IP after deployment.
-API_URL = "http://YOUR_EC2_PUBLIC_IP/predict"
+API_URL = "https://financial-rag-ewkx.onrender.com/predict"
 
 st.set_page_config(page_title="Financial RAG Chatbot")
 st.title("Financial Filings Q&A Assistant")
@@ -26,7 +26,7 @@ def ask_rag_backend(prompt: str) -> dict:
     with st.spinner("Searching and synthesizing answer..."):
         try:
             # Send data to the deployed EC2 instance
-            response = requests.post(API_URL, json=payload, timeout=90)
+            response = requests.post(API_URL, json=payload, timeout=180)
 
             if response.status_code == 200:
                 return response.json()

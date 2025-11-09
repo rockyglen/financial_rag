@@ -85,7 +85,7 @@ def multi_query_retriever_func(x: dict):
     # b. Perform parallel search and collect unique documents
     unique_docs = {}
     # Use a high k=7 since we removed the reranker, maximizing recall.
-    base_retriever = vectorstore.as_retriever(search_kwargs={"k": 7})
+    base_retriever = vectorstore.as_retriever(search_kwargs={"k": 10})
 
     for query in all_queries:
         query_string = str(query)
